@@ -13,38 +13,41 @@ namespace Assets.Scripts.Modules.Quests.Bolt
     [UnitCategory("Atropos/Quests")]
     public class CameraToDiolog : Unit
     {
+        [DoNotSerialize] private List<IDisposable> disposables = new List<IDisposable>();
+
         protected override void Definition()
         {
             var transform = ValueInput<Transform>("Look At");
-            var dispose = ValueOutput<Action>("Dispose",flow=> unlock);
+            var dispose = ValueOutput<Action>("Dispose",flow=> Unlock);
             var output = ControlOutput("Next");
             ControlInput("Set Camera",
                 flow=> 
                 {
-                    var at = flow.GetValue<Transform>(transform);
+                    var target = flow.GetValue<Transform>(transform);
                     var player = GameObject.FindObjectOfType<MainPlayer>();
-                    var cam = new GameObject().AddComponent<Camera>();
+                    var camera = new GameObject().AddComponent<Camera>();
 
-                    disposables.Add(player.LookAt(at));
-                    var rotation = at.rotation;
-                    at.LookAt(player.transform);
-                    cam.transform.position = player.positionToCamera;
-                    cam.transform.LookAt(at);
-                    Camera.SetupCurrent(cam);
-                    disposables.Add(UniRx.Disposable.Create(() => { GameObject.Destroy(cam.gameObject); at.rotation = rotation; }));
+                    disposables.Add(player.LookAt(target));
+                    var rotation = target.rotation;
+                    target.LookAt(player.transform);
+                    camera.transform.position = player.positionToCamera;
+                    camera.transform.LookAt(target);
+                    Camera.SetupCurrent(camera);
+
+                    disposables.Add(UniRx.Disposable.Create(
+                        () => 
+                        {
+                            GameObject.Destroy(camera.gameObject);
+                            target.rotation = rotation;
+                        }));
                     return output;
                 });
         }
 
-        [DoNotSerialize]
-        private List<IDisposable> disposables = new List<IDisposable>();
 
-        private void unlock()
+        private void Unlock()
         {
-            foreach (var d in disposables)
-            {
-                d.Dispose();
-            }
+            disposables.ForEach(action => action.Dispose());
             disposables = new List<IDisposable>();
         }
     }

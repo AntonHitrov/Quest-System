@@ -9,8 +9,6 @@ namespace Assets.Scripts.Modules.Quests.Bolt
     {
         internal override Type GetPresenterType() => typeof(TriggerSpawn);
 
-
-
         protected override void Definition()
         {
             AsyncState = true;

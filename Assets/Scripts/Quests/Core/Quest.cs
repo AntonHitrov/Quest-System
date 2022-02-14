@@ -15,11 +15,10 @@ namespace Assets.Scripts.Modules.Quests
     public class Quest :Asset 
     {
         #region Info
-       // [HideInInspector]public AssetReference Reference;
         [ShowNativeProperty]internal string guid => string.IsNullOrEmpty(Reference.AssetGUID) ? "Exception: GUID don't set" : Reference.AssetGUID;
         #endregion
 
-        #region Settings
+        #region Property
         public bool Hiden = true;
         [HideIf(nameof(Hiden))] public string Title;
         [HideIf(nameof(Hiden))] public string DescriptionShort;
@@ -28,22 +27,18 @@ namespace Assets.Scripts.Modules.Quests
         [HideInInspector] public string State = "";
         public string CurrentState
         {
-            get
-            {
-                if (!values.ContainsKey("STATE"))
-                    return State;
-                else
-                    return values["STATE"];
-            }
+            get => values.ContainsKey("STATE") ? values["STATE"] : State;
             set
             {
-                if (!values.ContainsKey("STATE"))
-                    values.Add("STATE", value);
-                else
+                if (values.ContainsKey("STATE"))
                     values["STATE"] = value;
+                else
+                    values.Add("STATE", value);
                 (values as Networking.Realisation.Item).Save();
             }
         }
+        public List<QuestState> GetStates => GetAll<QuestState>(macro.graph).ToList();
+
         #endregion
 
         private IDictionary<string, string> values = new Dictionary<string, string>();
@@ -59,8 +54,9 @@ namespace Assets.Scripts.Modules.Quests
         }
 
         #region ListState
+
         public List<string> GetStatesName() => GetAll<QuestState>(macro.graph).Select(x => x.Name).ToList();
-        public List<QuestState> GetStates => GetAll<QuestState>(macro.graph).ToList();
+
         internal Bolt.StartQuest GetStart => GetAll<Bolt.StartQuest>(macro.graph).First();
 
         private IEnumerable<Element> GetAll<Element>(IGraph graph)
@@ -70,6 +66,7 @@ namespace Assets.Scripts.Modules.Quests
         private static IEnumerable<Element> GetStateInGraph<Element>(IGraph graph) 
             => graph.elements.Where(x => x is Element)
                              .Cast <Element> ();
+
         private static IEnumerable<IGraph> GetSubGraphs(IGraph graph)
             => graph.elements.Where(x => x is IGraphParent)
                              .Cast<IGraphParent>()

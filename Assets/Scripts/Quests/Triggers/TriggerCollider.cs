@@ -10,12 +10,13 @@ namespace Assets.Scripts.Modules.Quests
     [RequireComponent(typeof(SphereCollider))]
     public class TriggerCollider : Trigger
     {
+        #region Property
         public EventTypeCollider EventType;
         public TriggerTarget Target;
+        [ShowIf(nameof(IsAnyTarget))] public string[] indificators;
 
         internal bool IsAnyTarget => Target == TriggerTarget.AnyHasIndificator;
-        [ShowIf(nameof(IsAnyTarget))]
-        public string[] indificators;
+        #endregion
 
         private void Awake()
         {
@@ -30,25 +31,29 @@ namespace Assets.Scripts.Modules.Quests
                 if (Target == TriggerTarget.MainPlayer && collider.GetComponent<MainPlayer>() != null)
                 {
                     Respone((int)EventType);
-                    return;
                 }
-                var target = collider.GetComponent<CastTarget>();
-                if (Target == TriggerTarget.AnyHasIndificator && target != null && indificators.Any(x => target.indificator == x))
-                    Respone((int)EventType);
+                else
+                {
+                    CastTarget target = collider.GetComponent<CastTarget>();
+                    if (Target == TriggerTarget.AnyHasIndificator && target != null && indificators.Any(x => target.indificator == x))
+                        Respone((int)EventType);
+                }
             }
         }
 
         private void OnTriggerEnter(Collider other) => Invoke(nameof(OnTriggerEnter), other);
         private void OnTriggerExit(Collider other) => Invoke(nameof(OnTriggerExit), other);
-
     }
+
     public enum TriggerTarget
     {
-        MainPlayer,AnyHasIndificator
+        MainPlayer,
+        AnyHasIndificator
     }
 
     public enum EventTypeCollider :int
     {
-        OnTriggerEnter, OnTriggerExit
+        OnTriggerEnter,
+        OnTriggerExit
     }
 }

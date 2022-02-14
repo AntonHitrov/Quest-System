@@ -8,9 +8,7 @@ namespace Assets.Scripts.Modules.Quests.Bolt
     [UnitCategory("Atropos/Quests/Player")]
     public class MainPlayerTransform : Unit
     {
-        protected override void Definition()
-        {
-            ValueOutput<Transform>("Transform", flow => GameObject.FindObjectOfType<MainPlayer>().transform);
-        }
+        protected override void Definition() 
+            => ValueOutput<Transform>("Transform", flow => GameObject.FindObjectOfType<MainPlayer>().transform);
     }
 }

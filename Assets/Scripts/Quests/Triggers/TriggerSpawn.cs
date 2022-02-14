@@ -6,35 +6,36 @@ namespace Assets.Scripts.Modules.Quests.Triggers
 {
     public class TriggerSpawn :Trigger
     {
+        #region Property
         public Prototype prototype;
         public bool HasBehavior = false;
-
-        public Transform proto_Transform => ProtoObject != null ? (ProtoObject is Unit ? (ProtoObject as Unit).transform : (ProtoObject as GameObject).transform) : null;
+        public Transform proto_Transform => ProtoObject == null ?
+                                            null :
+                                            ProtoObject is Unit ?
+                                            ProtoAsUnit.transform :
+                                            ProtoAsGameObject.transform;
         private System.Object ProtoObject;
+        private Unit ProtoAsUnit => ProtoObject as Unit;
+        private GameObject ProtoAsGameObject => ProtoObject as GameObject;
+        #endregion
+
+
         protected override void BeginListened()
         {
             base.BeginListened();
-            if(HasBehavior)
-                ProtoObject = prototype.Spawn(transform.position, transform.rotation);
-            else
-            {
-                Debug.Log($"{transform.position}");
-                Debug.Log($"{transform.rotation}");
-               
-                ProtoObject = prototype.Spawn_nobehavior(transform.position,transform.rotation);
-
-                Debug.Log($"{(ProtoObject as GameObject).transform.position}");
-                Debug.Log($"{(ProtoObject as GameObject).transform.rotation}");
-            }
+            ProtoObject = HasBehavior ?
+                          prototype.Spawn(transform.position, transform.rotation):
+                          prototype.Spawn_nobehavior(transform.position,transform.rotation);
         }
 
         protected override void EndListened()
         {
             base.EndListened();
-            if(ProtoObject != null)
-            Destroy(HasBehavior ? (ProtoObject as Unit).transform.gameObject : ProtoObject as GameObject);
+            if( ProtoObject != null )
+            Destroy( proto_Transform.gameObject );
         }
     }
+
     [System.Serializable]
     public class SpawnPoint
     {
@@ -43,6 +44,5 @@ namespace Assets.Scripts.Modules.Quests.Triggers
 
         public GameObject Spawn_nobehavior() => prototypes.Spawn_nobehavior(SpawnPlases.position,SpawnPlases.rotation);
         public Unit Spawn() => prototypes.Spawn(SpawnPlases.position, SpawnPlases.rotation);
-
     }
 }

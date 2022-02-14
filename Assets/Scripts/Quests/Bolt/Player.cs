@@ -7,9 +7,9 @@ namespace Assets.Scripts.Modules.Quests.Bolt
     [UnitCategory("Atropos/Quests/Player")]
     public class Player : Unit
     {
-        protected override void Definition()
-        {
-            ValueOutput("",flow => ProjectContext.Instance.Container.Resolve<Networking.Realisation.CurrentPlayer>());
-        }
+        protected override void Definition() 
+            => ValueOutput("", flow => ProjectContext.Instance
+                                                     .Container
+                                                     .Resolve<Networking.Realisation.CurrentPlayer>());
     }
 }

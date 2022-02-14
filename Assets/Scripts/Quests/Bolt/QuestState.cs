@@ -67,11 +67,13 @@ namespace Assets.Scripts.Modules.Quests
             Respone();
             Flow.New(reference).StartCoroutine(respones[id]);
         }
+
         internal void Respone()
         {
             StateReference.Get(quest.guid, Name).run.Value = false;
             activate = false;
         }
+
         protected virtual void Request()
         {
             Log($"Activate {Name} : {SceneName} : {quest.name} : {reference}");
@@ -79,6 +81,7 @@ namespace Assets.Scripts.Modules.Quests
             if (!ValidScene) return;
             StateReference.Get(quest.guid, Name).Activate(this);
         }
+
         internal virtual Type GetPresenterType()=> null;
 
 
@@ -158,8 +161,6 @@ namespace Assets.Scripts.Modules.Quests
                 }
             }
         }
-
-
         #endregion
     }
 

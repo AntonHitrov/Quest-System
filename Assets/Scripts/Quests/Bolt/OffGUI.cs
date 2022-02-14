@@ -12,8 +12,9 @@ namespace Assets.Scripts.Modules.Quests.Bolt
     {
         protected override void Definition()
         {
+            ValueOutput<Action>("Undo",flow => Undo);
+
             var output_c = ControlOutput("Next  ");
-            var output_v = ValueOutput<Action>("Undo",flow=>Undo);
             ControlInput("Off GUI",
                 flow =>
                 {
@@ -23,7 +24,11 @@ namespace Assets.Scripts.Modules.Quests.Bolt
         }
 
         private static void SetActive(bool value) 
-            => GameObject.FindObjectOfType<SceneContext>().Container.ResolveId<Canvas>(nameof(UI.Canvas.UI.SceneCanvas)).gameObject.SetActive(value);
+            => GameObject.FindObjectOfType<SceneContext>()
+                         .Container
+                         .ResolveId<Canvas>(nameof(UI.Canvas.UI.SceneCanvas))
+                         .gameObject
+                         .SetActive(value);
 
         private void Undo()
             => SetActive(true);

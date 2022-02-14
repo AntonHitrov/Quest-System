@@ -17,7 +17,7 @@ namespace Assets.Scripts.Modules.Quests.Bolt
 #if UNITY_EDITOR
             quest = quest == null ? QuestState.@default : quest;
 #endif
-            var ControleOut = ControlOutput("                       ");
+            ControlOutput ControleOut = ControlOutput("                       ");
             ControlInput("Accept", (flow)=> { QuestRuntime.Load(quest);  return ControleOut; });
         }
     }

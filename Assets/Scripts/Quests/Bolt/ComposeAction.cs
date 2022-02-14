@@ -11,23 +11,23 @@ namespace Assets.Scripts.Modules.Quests.Bolt
     [UnitCategory("Atropos/Quests")]
     public class ComposeAction : Unit
     {
-        [Inspectable]
-        [UnitHeaderInspectable("Count")]
+        #region Property
+        [Inspectable, UnitHeaderInspectable("Count")]
         public int Count = 0;
 
         [DoNotSerialize]
         private List<ValueInput> inputValues = new List<ValueInput>();
-
+        #endregion
 
         protected override void Definition()
         {
-            foreach (var i in Enumerable.Range(0, Count))
-            {
-                inputValues.Add(ValueInput<Action>($"Inpput {i}"));
-            }
-            var output = ControlOutput("Activated");
+            inputValues = Enumerable.Range(0, Count)
+                                    .Select(i => ValueInput<Action>($"Inpput {i}"))
+                                    .ToList();
             ValueOutput<Action>("Combine", flow => ()=> Invoke(flow));
-            ControlInput("Activate   ", 
+
+            var output = ControlOutput("Activated");
+            ControlInput("Activate", 
                 flow =>
                 {
                     Invoke(flow);
@@ -35,12 +35,7 @@ namespace Assets.Scripts.Modules.Quests.Bolt
                 });
         }
 
-        private void Invoke(Flow flow)
-        {
-            foreach (var i in inputValues)
-            {
-                flow.GetValue<Action>(i).Invoke();
-            }
-        }
+        private void Invoke(Flow flow) 
+            => inputValues.ForEach(value => flow.GetValue<Action>(value).Invoke());
     }
 }

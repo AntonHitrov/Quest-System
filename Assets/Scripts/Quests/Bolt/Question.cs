@@ -18,8 +18,6 @@ namespace Assets.Scripts.Modules.Quests.Bolt
         public string[] dialogs = new string[] { };
         
         [DoNotSerialize]
-        GraphReference reference;
-        [DoNotSerialize]
         private ControlOutput[] outputsDialog;
 
         [DoNotSerialize]
@@ -27,34 +25,27 @@ namespace Assets.Scripts.Modules.Quests.Bolt
 
         protected override void Definition()
         {
-            outputsDialog = new ControlOutput[dialogs.Length];
-            foreach (var i in Enumerable.Range(0,dialogs.Length))
-            {
-                outputsDialog[i] = ControlOutput($"Variant {i}");
-            }
-            ControlInput("Begin                                      ",
-                (flow)=> 
+            outputsDialog = Enumerable.Range(0, dialogs.Length)
+                                      .Select(i => ControlOutput($"Variant {i}"))
+                                      .ToArray();
+            ControlInput("Begin",
+                flow => 
                 {
-                    var factory = UnityEngine
-                                    .Object
-                                    .FindObjectOfType<SceneContext>()
-                                    .Container
-                                    .ResolveId<IFactory<Sprite, Action, string, IDisposable>>(nameof(UI.Canvas.UI.Cinema));
                     reference = flow.stack.ToReference();
-                    
-                    foreach (var i in Enumerable.Range(0, dialogs.Length))
-                    {
-                        disposables.Add(factory.Create(null,()=>Select(i),dialogs[i]));
-                    }
-
+                    var factory = UnityEngine.Object
+                                             .FindObjectOfType<SceneContext>()
+                                             .Container
+                                             .ResolveId<IFactory<Sprite, Action, string, IDisposable>>(nameof(UI.Canvas.UI.Cinema));
+                    disposables = Enumerable.Range(0, dialogs.Length)
+                                            .Select( i => factory.Create(null, () => Select(i, reference), dialogs[i]))
+                                            .ToList();
                     return null;
                 });
         }
 
-        private void Select(int i)
+        private void Select(int i, GraphReference reference)
         {
-            foreach (var dis in disposables)
-                dis.Dispose();
+            disposables.ForEach(element => element.Dispose());
             Flow.New(reference).StartCoroutine(outputsDialog[i]);
         }
     }

@@ -13,9 +13,8 @@ namespace Assets.Scripts.Modules.Quests.Bolt
     [UnitCategory("Atropos/Quests")]
     public class Container : Unit
     {
-        [Inspectable]
-        [UnitHeaderInspectable("Asset")]
-        public ItemAsset asset;
+        [Inspectable , UnitHeaderInspectable("Asset")] public ItemAsset asset;
+
 
         protected override void Definition()
         {
@@ -33,6 +32,7 @@ namespace Assets.Scripts.Modules.Quests.Bolt
                     .AddNewItems((Dictionary<string,string>)asset.Values);
                 return output;
             });
+
             ControlInput("Remove Asset", flow =>
             {
                 NetContainer container = flow.GetValue<NetContainer>(value);

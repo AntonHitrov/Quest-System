@@ -8,7 +8,8 @@ using UnityEngine;
 
 namespace Assets.Scripts.Modules.Quests.Triggers
 {
-    [System.Serializable] public struct Reference { public string GUID, Name; }
+    [System.Serializable]
+    public struct Reference { public string GUID, Name; }
 
     public class StateReference :MonoBehaviour
     {
@@ -32,19 +33,21 @@ namespace Assets.Scripts.Modules.Quests.Triggers
                 return dropList;
             }
         }
-
-
-
         [SerializeField]
         [Dropdown(nameof(getReferences))]
         [HideIf(nameof(binded))]
 #endif
         #endregion
+
+        #region Property
         public Reference Reference;
+        [HideInInspector] public BoolReactiveProperty run = new BoolReactiveProperty(false);
+
         [ShowNativeProperty] private string Name => Reference.Name != null ? Reference.Name : "";
         [ShowNativeProperty] private string GUID => Reference.GUID != null ? Reference.GUID : "";
-        [HideInInspector] public BoolReactiveProperty run = new BoolReactiveProperty(false);
         private QuestState state;
+        #endregion
+
         internal void Activate(QuestState state)
         {
             this.state = state;
@@ -54,7 +57,8 @@ namespace Assets.Scripts.Modules.Quests.Triggers
         internal void Respone(int id) => state?.Respone(id);
 
         static internal StateReference Get(string guid, string name)
-            => FindObjectsOfType<StateReference>().Where(x => x.GUID == guid && x.Name == name).FirstOrDefault();
+            => FindObjectsOfType<StateReference>().Where(x => x.GUID == guid && x.Name == name)
+                                                  .FirstOrDefault();
 
         #region EDITOR
 #if UNITY_EDITOR

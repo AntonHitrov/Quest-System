@@ -9,39 +9,40 @@ namespace Assets.Scripts.Modules.Quests
     [RequireComponent(typeof(StateReference))]
     public class Trigger : MonoBehaviour
     {
-        StateReference reference;
-        [ShowNativeProperty]
-        protected bool run => reference != null ? reference.run.Value : false;
+        #region Property
 
+        private StateReference reference;
+        [ShowNativeProperty] protected bool run => reference != null ? reference.run.Value : false;
+
+        #region public
         public UnityEvent Begin;
         public UnityEvent End;
+        #endregion
+        #endregion
 
         protected virtual void Start()
         {
             reference = GetComponent<StateReference>();
-            reference.run.Skip(1).Subscribe(
-                b=>
-                {
-                    if (b)
-                    {
-                        BeginListened();
-                        Begin.Invoke();
-                    }
-                    else
-                    {
-                        EndListened();
-                        End.Invoke();
-                    }
-                }).AddTo(gameObject);
+            reference.run.Skip(1).Subscribe(Handler).AddTo(gameObject);
         }
 
         public void Respone(int id) => reference.Respone(id);
 
-        protected virtual void BeginListened()
+        protected virtual void BeginListened() { }
+        protected virtual void EndListened() { }
+
+        private void Handler(bool runing)
         {
-        }
-        protected virtual void EndListened()
-        {
+            if (runing)
+            {
+                BeginListened();
+                Begin.Invoke();
+            }
+            else
+            {
+                EndListened();
+                End.Invoke();
+            }
         }
 
         #region Editor
